@@ -49,7 +49,7 @@ class Enemy {
     }
 }
 
-class Player {
+class Player{
     constructor() {
         this.x = 2 * PLAYER_WIDTH;
         this.y = GAME_HEIGHT - PLAYER_HEIGHT - 10;
@@ -70,9 +70,6 @@ class Player {
         ctx.drawImage(this.sprite, this.x, this.y);
     }
 }
-
-
-
 
 
 /*
@@ -120,11 +117,11 @@ class Engine {
 
         var enemySpot;
         // Keep looping until we find a free enemy spot at random
-        while (!enemySpot || this.enemies[enemySpot]) {
+        while (!enemySpots || this.enemies[enemySpot]) {
             enemySpot = Math.floor(Math.random() * enemySpots);
         }
 
-        this.enemies[enemySpot] = new Enemy(enemySpot * ENEMY_WIDTH);
+        this.enemies[enemySpot] = new Enemy(Math.floor(enemySpot * ENEMY_WIDTH));
     }
 
     // This method kicks off the game
@@ -199,11 +196,19 @@ class Engine {
     }
 
     isPlayerDead() {
-        // TODO: fix this function!
-        return false;
+        var dead = false;
+        var hitZone = (GAME_HEIGHT - PLAYER_HEIGHT) - ENEMY_HEIGHT;
+        console.log(hitZone);
+        this.enemies.forEach((enemy, enemyIdx) => {
+            if(enemy.x === this.player.x && enemy.y > hitZone){
+                dead = true;
+                return;
+            }
+        });
+        
+        return dead;
     }
 }
-
 
 
 
