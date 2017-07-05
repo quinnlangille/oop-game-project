@@ -181,6 +181,9 @@ class Engine {
             this.ctx.font = 'bold 30px Impact';
             this.ctx.fillStyle = '#ffffff';
             this.ctx.fillText(this.score + ' GAME OVER', 5, 30);
+            // $(function() {
+            //     $("canvas").toggle( "explode" );
+            // });
         }
         else {
             // If player is not dead, then draw the score
