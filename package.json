@@ -1,0 +1,23 @@
+{
+  "name": "oop-game-project",
+  "version": "1.0.0",
+  "description": "<h2 align=\"center\">I CAN HAZ CHEEZBURGER?!??</h2> <p align=\"center\"><img src=\"screenshot.png\"></p>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quinnlangille/oop-game-project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/quinnlangille/oop-game-project/issues"
+  },
+  "homepage": "https://github.com/quinnlangille/oop-game-project#readme",
+  "devDependencies": {
+    "jquery": "^3.2.1",
+    "jquery-ui": "^1.12.1"
+  }
+}

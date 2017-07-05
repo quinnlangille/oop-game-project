@@ -10,8 +10,8 @@ var PLAYER_WIDTH = 75;
 var PLAYER_HEIGHT = 54;
 
 // These two constants keep us from using "magic numbers" in our code
-var LEFT_ARROW_CODE = 37;
-var RIGHT_ARROW_CODE = 39;
+var LEFT_ARROW_CODE = 37 && 65;
+var RIGHT_ARROW_CODE = 39 && 68;
 
 // These two constants allow us to DRY
 var MOVE_LEFT = 'left';
@@ -27,30 +27,33 @@ var images = {};
 
 
 
+class Entity {
+        render(ctx) {
+        ctx.drawImage(this.sprite, this.x, this.y);
+    }
+}
 
 
 // This section is where you will be doing most of your coding
-class Enemy {
+class Enemy extends Entity{
     constructor(xPos) {
+        super();
         this.x = xPos;
         this.y = -ENEMY_HEIGHT;
         this.sprite = images['enemy.png'];
 
         // Each enemy should have a different speed
-        this.speed = Math.random() / 2 + 0.25;
+        this.speed = Math.random() / 4 + 0.25;
     }
 
     update(timeDiff) {
         this.y = this.y + timeDiff * this.speed;
     }
-
-    render(ctx) {
-        ctx.drawImage(this.sprite, this.x, this.y);
-    }
 }
 
-class Player{
+class Player extends Entity{
     constructor() {
+        super();
         this.x = 2 * PLAYER_WIDTH;
         this.y = GAME_HEIGHT - PLAYER_HEIGHT - 10;
         this.sprite = images['player.png'];
@@ -64,10 +67,6 @@ class Player{
         else if (direction === MOVE_RIGHT && this.x < GAME_WIDTH - PLAYER_WIDTH) {
             this.x = this.x + PLAYER_WIDTH;
         }
-    }
-
-    render(ctx) {
-        ctx.drawImage(this.sprite, this.x, this.y);
     }
 }
 
@@ -197,7 +196,7 @@ class Engine {
 
     isPlayerDead() {
         var dead = false;
-        var hitZone = (GAME_HEIGHT - PLAYER_HEIGHT) - ENEMY_HEIGHT;
+        var hitZone = (GAME_HEIGHT - (PLAYER_HEIGHT)) - (ENEMY_HEIGHT);
         console.log(hitZone);
         this.enemies.forEach((enemy, enemyIdx) => {
             if(enemy.x === this.player.x && enemy.y > hitZone){
