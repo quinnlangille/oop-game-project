@@ -110,7 +110,11 @@ class Engine {
 
         this.boss = new Boss();
         // Setup enemies, making sure there are always three
+
         this.setupEnemies();
+
+        // Setup Boss once checkpoint is reached
+        this.deployBoss();
 
         // Setup the <canvas> element where we will be drawing
         var canvas = document.createElement('canvas');
@@ -135,7 +139,7 @@ class Engine {
 
         while (this.enemies.filter(e => !!e).length < MAX_ENEMIES) {
             this.addEnemy();
-        }
+            }
     }
 
     // This method finds a random spot where there is no enemy, and puts one in there
@@ -183,6 +187,18 @@ class Engine {
         this.gameLoop();
     }
 
+    deployBoss() {
+        console.log("Inside the Boss fucnction" + this.score);
+        this.boss = new Boss;
+        if(this.score === 2000) {
+            console.log("Inside the condition" + this.score);
+            this.boss = new Boss();
+            while(Boss) {
+                console.log("Inside the while" + this.score);
+            }
+        }
+    }
+
     /*
     This is the core of the game engine. The `gameLoop` function gets called ~60 times per second
     During each execution of the function, we will update the positions of all game entities
@@ -216,6 +232,7 @@ class Engine {
                 delete this.enemies[enemyIdx];
             }
         });
+
         this.setupEnemies();
 
         // Check if player is dead
@@ -262,6 +279,7 @@ class Engine {
                 && this.enemies[i].y + ENEMY_HEIGHT* 0.5 < this.player.y + PLAYER_HEIGHT) {
 
                 dead = true;
+                console.log(hitZone);
                 return;
               }
         });
@@ -269,7 +287,6 @@ class Engine {
         return dead;
     }
 }
-
 
 
 
