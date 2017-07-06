@@ -82,14 +82,14 @@ class Player extends Entity{
 }
 
 class Boss extends Enemy {
-  constructor(xPos) {
+  constructor() {
       super();
-      this.x = 100;
-      this.y = 0;
+      this.x = 0;
+      this.y = -BOSS_HEIGHT;
       this.sprite = images['kevin.png'];
 
       // Each enemy should have a different speed
-      this.speed = 2;
+      this.speed = 0.2;
   }
 
   update(timeDiff) {
@@ -107,6 +107,7 @@ class Engine {
     constructor(element) {
         // Setup the player
         this.player = new Player();
+
         this.boss = new Boss();
         // Setup enemies, making sure there are always three
 
@@ -151,6 +152,9 @@ class Engine {
             enemySpot = Math.floor(Math.random() * enemySpots);
         }
 
+          if(isBossTime()) {
+             this.enemies = [];
+          }
           this.enemies[enemySpot] = new Enemy(Math.floor(enemySpot * ENEMY_WIDTH));
       }
 
@@ -258,7 +262,7 @@ class Engine {
     }
 
     isBossTime(timeDiff) {
-      if(this.score === 300) {
+      if(this.score >= 200) {
           console.log("THE BOSS HAS ARRIVED", timeDiff)
           this.boss.update(timeDiff);
           return true;
