@@ -6,32 +6,43 @@ var ENEMY_WIDTH = 75;
 var ENEMY_HEIGHT = 156;
 var MAX_ENEMIES = 3;
 
+var BOSS_WIDTH = 300;
+var BOSS_HEIGHT = 400; //figure out after
+
 var PLAYER_WIDTH = 75;
-var PLAYER_HEIGHT = 54;
+var PLAYER_HEIGHT = 75;
 
 // These two constants keep us from using "magic numbers" in our code
 var LEFT_ARROW_CODE = 37;
 var RIGHT_ARROW_CODE = 39;
+var UP_ARROW_CODE = 38;
+var DOWN_ARROW_CODE = 40;
+var SPACE_BAR_CODE = 32;
 
 // These two constants allow us to DRY
 var MOVE_LEFT = 'left';
 var MOVE_RIGHT = 'right';
+var MOVE_DOWN = 'down';
+var MOVE_UP = 'up';
 
 // Preload game images
 var images = {};
-['enemy.png', 'stars.png', 'player.png'].forEach(imgName => {
+['enemy.png', 'stars.png', 'player.png', 'ziad.png', 'kevin.png'].forEach(imgName => {
     var img = document.createElement('img');
     img.src = 'images/' + imgName;
     images[imgName] = img;
 });
 
-
-
-
+class Entity {
+  render(ctx) {
+      ctx.drawImage(this.sprite, this.x, this.y);
+  }
+}
 
 // This section is where you will be doing most of your coding
-class Enemy {
+class Enemy extends Entity {
     constructor(xPos) {
+        super();
         this.x = xPos;
         this.y = -ENEMY_HEIGHT;
         this.sprite = images['enemy.png'];
@@ -43,17 +54,14 @@ class Enemy {
     update(timeDiff) {
         this.y = this.y + timeDiff * this.speed;
     }
-
-    render(ctx) {
-        ctx.drawImage(this.sprite, this.x, this.y);
-    }
 }
 
-class Player{
+class Player extends Entity{
     constructor() {
+        super();
         this.x = 2 * PLAYER_WIDTH;
         this.y = GAME_HEIGHT - PLAYER_HEIGHT - 10;
-        this.sprite = images['player.png'];
+        this.sprite = images['ziad.png'];
     }
 
     // This method is called by the game engine when left/right arrows are pressed
@@ -64,24 +72,43 @@ class Player{
         else if (direction === MOVE_RIGHT && this.x < GAME_WIDTH - PLAYER_WIDTH) {
             this.x = this.x + PLAYER_WIDTH;
         }
-    }
-
-    render(ctx) {
-        ctx.drawImage(this.sprite, this.x, this.y);
+        else if (direction === MOVE_DOWN && this.y < GAME_HEIGHT - PLAYER_HEIGHT - 20) {
+            this.y = this.y + PLAYER_HEIGHT;
+        }
+        else if (direction === MOVE_UP && this.y > 0 + PLAYER_HEIGHT / 3) {
+            this.y = this.y - PLAYER_HEIGHT;
+        }
     }
 }
 
+class Boss extends Enemy {
+  constructor(xPos) {
+      super();
+      this.x = BOSS_WIDTH * 4;
+      this.y = -BOSS_HEIGHT;
+      this.sprite = images['kevin.png'];
+
+      // Each enemy should have a different speed
+      this.speed = 2;
+  }
+
+  update(timeDiff) {
+      this.y = this.y + timeDiff * this.speed;
+  }
+}
 
 /*
 This section is a tiny game engine.
 This engine will use your Enemy and Player classes to create the behavior of the game.
 The engine will try to draw your game at 60 frames per second using the requestAnimationFrame function
 */
+
 class Engine {
     constructor(element) {
         // Setup the player
         this.player = new Player();
 
+        this.boss = new Boss();
         // Setup enemies, making sure there are always three
         this.setupEnemies();
 
@@ -121,8 +148,8 @@ class Engine {
             enemySpot = Math.floor(Math.random() * enemySpots);
         }
 
-        this.enemies[enemySpot] = new Enemy(Math.floor(enemySpot * ENEMY_WIDTH));
-    }
+          this.enemies[enemySpot] = new Enemy(Math.floor(enemySpot * ENEMY_WIDTH));
+      }
 
     // This method kicks off the game
     start() {
@@ -136,6 +163,20 @@ class Engine {
             }
             else if (e.keyCode === RIGHT_ARROW_CODE) {
                 this.player.move(MOVE_RIGHT);
+            }
+            else if (e.keyCode === UP_ARROW_CODE) {
+                this.player.move(MOVE_UP);
+                console.log("Limit is " + (GAME_HEIGHT - PLAYER_HEIGHT));
+                console.log("Player coordinates are " + this.player.y);
+            }
+            else if (e.keyCode === DOWN_ARROW_CODE) {
+                this.player.move(MOVE_DOWN);
+                console.log("limit is " + (GAME_HEIGHT - PLAYER_HEIGHT));
+                console.log("Player coordinates are " + this.player.y);
+            }
+            else if (e.keyCode === SPACE_BAR_CODE) {
+               this.shoot();
+               console.log("U pressed it")
             }
         });
 
@@ -158,7 +199,7 @@ class Engine {
         var timeDiff = currentFrame - this.lastFrame;
 
         // Increase the score!
-        this.score += timeDiff;
+        this.score += 1;
 
         // Call update on all enemies
         this.enemies.forEach(enemy => enemy.update(timeDiff));
@@ -167,6 +208,7 @@ class Engine {
         this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
         this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemies
         this.player.render(this.ctx); // draw the player
+        this.boss.render(this.ctx);
 
         // Check if any enemies should die
         this.enemies.forEach((enemy, enemyIdx) => {
@@ -193,19 +235,37 @@ class Engine {
             this.lastFrame = Date.now();
             requestAnimationFrame(this.gameLoop);
         }
+
+        isBossTime();
+
+        if(isBossTime()) {
+          console.log("IT IS BOSS TIME");
+        }
     }
+
+    isBossTime() {
+      if(this.score === 300) {
+          console.log("THE BOSS HAS ARRIVED")
+          this.boss.update(timeDiff);
+        }
+      }
 
     isPlayerDead() {
         var dead = false;
-        var hitZone = (GAME_HEIGHT - PLAYER_HEIGHT) - ENEMY_HEIGHT;
+        var hitZone = (PLAYER_HEIGHT - this.player.y);
         console.log(hitZone);
-        this.enemies.forEach((enemy, enemyIdx) => {
-            if(enemy.x === this.player.x && enemy.y > hitZone){
+        this.enemies.forEach((enemy, i) => {
+            if (this.enemies[i]
+                && this.enemies[i].x < this.player.x + PLAYER_WIDTH - 0.2 * PLAYER_WIDTH
+                && this.enemies[i].x + ENEMY_WIDTH > this.player.x + 0.2 * PLAYER_WIDTH
+                && this.enemies[i].y + ENEMY_HEIGHT* 0.6 > this.player.y
+                && this.enemies[i].y + ENEMY_HEIGHT* 0.5 < this.player.y + PLAYER_HEIGHT) {
+
                 dead = true;
                 return;
-            }
+              }
         });
-        
+
         return dead;
     }
 }
