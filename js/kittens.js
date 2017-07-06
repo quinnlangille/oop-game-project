@@ -19,22 +19,33 @@ var MOVE_RIGHT = 'right';
 
 // Preload game images
 var images = {};
-['enemy.png', 'stars.png', 'player.png'].forEach(imgName => {
+['enemy.png', 'stars.png', 'player.png', 'Ziad.jpeg'].forEach(imgName => {
     var img = document.createElement('img');
     img.src = 'images/' + imgName;
     images[imgName] = img;
 });
 
-
-
-
-
 // This section is where you will be doing most of your coding
-class Enemy {
-    constructor(xPos) {
-        this.x = xPos;
-        this.y = -ENEMY_HEIGHT;
-        this.sprite = images['enemy.png'];
+
+class Entity {
+    constructor(x, y, sprite, health) {
+        this.x = x;
+        this.y = y;
+        this.sprite = images[sprite];
+        this.hp = health;
+    }
+    
+    render(ctx) {
+        ctx.drawImage(this.sprite, this.x, this.y);
+    }
+}
+
+class Enemy extends Entity {
+    constructor() {
+        super();
+        // this.x = xPos;
+        // this.y = -ENEMY_HEIGHT;
+        // this.sprite = images['enemy.png'];
 
         // Each enemy should have a different speed
         this.speed = Math.random() / 2 + 0.25;
@@ -43,17 +54,15 @@ class Enemy {
     update(timeDiff) {
         this.y = this.y + timeDiff * this.speed;
     }
-
-    render(ctx) {
-        ctx.drawImage(this.sprite, this.x, this.y);
-    }
 }
 
-class Player{
+class Player extends Entity{
     constructor() {
+        super();
         this.x = 2 * PLAYER_WIDTH;
         this.y = GAME_HEIGHT - PLAYER_HEIGHT - 10;
         this.sprite = images['player.png'];
+        this.health = 300; //just set random # for now
     }
 
     // This method is called by the game engine when left/right arrows are pressed
@@ -65,12 +74,17 @@ class Player{
             this.x = this.x + PLAYER_WIDTH;
         }
     }
-
-    render(ctx) {
-        ctx.drawImage(this.sprite, this.x, this.y);
-    }
 }
 
+class Boss extends Enemy {
+    constructor() {
+        super();
+        this.x = 4 * PLAYER_WIDTH;
+        this.y = GAME_HEIGHT - PLAYER_HEIGHT - 10;
+        this.sprite = images['Ziad.jpeg'];
+        this.health = 1000;
+    }
+}
 
 /*
 This section is a tiny game engine.
@@ -83,7 +97,11 @@ class Engine {
         this.player = new Player();
 
         // Setup enemies, making sure there are always three
+        
         this.setupEnemies();
+        
+        // Setup Boss once checkpoint is reached
+        this.deployBoss();
 
         // Setup the <canvas> element where we will be drawing
         var canvas = document.createElement('canvas');
@@ -108,7 +126,7 @@ class Engine {
 
         while (this.enemies.filter(e => !!e).length < MAX_ENEMIES) {
             this.addEnemy();
-        }
+            }
     }
 
     // This method finds a random spot where there is no enemy, and puts one in there
@@ -120,8 +138,8 @@ class Engine {
         while (!enemySpots || this.enemies[enemySpot]) {
             enemySpot = Math.floor(Math.random() * enemySpots);
         }
-
-        this.enemies[enemySpot] = new Enemy(Math.floor(enemySpot * ENEMY_WIDTH));
+        
+        this.enemies[enemySpot] = new Enemy(Math.floor(enemySpot * ENEMY_WIDTH), -ENEMY_HEIGHT);
     }
 
     // This method kicks off the game
@@ -140,6 +158,18 @@ class Engine {
         });
 
         this.gameLoop();
+    }
+    
+    deployBoss() {
+        console.log("Inside the Boss fucnction" + this.score);
+        this.boss = new Boss;
+        if(this.score === 2000) {
+            console.log("Inside the condition" + this.score);
+            this.boss = new Boss();
+            while(Boss) {
+                console.log("Inside the while" + this.score);
+            }
+        }
     }
 
     /*
@@ -174,6 +204,7 @@ class Engine {
                 delete this.enemies[enemyIdx];
             }
         });
+        
         this.setupEnemies();
 
         // Check if player is dead
@@ -197,19 +228,18 @@ class Engine {
 
     isPlayerDead() {
         var dead = false;
-        var hitZone = (GAME_HEIGHT - PLAYER_HEIGHT) - ENEMY_HEIGHT;
-        console.log(hitZone);
+        var hitZone = (GAME_HEIGHT - PLAYER_HEIGHT - ENEMY_HEIGHT);
+        // console.log(hitZone);
         this.enemies.forEach((enemy, enemyIdx) => {
             if(enemy.x === this.player.x && enemy.y > hitZone){
                 dead = true;
+                console.log(hitZone);
                 return;
             }
         });
-        
         return dead;
     }
 }
-
 
 
 
