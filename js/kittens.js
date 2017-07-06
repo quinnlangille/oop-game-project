@@ -1,12 +1,12 @@
 // This sectin contains some game constants. It is not super interesting
-var GAME_WIDTH = 375;
+var GAME_WIDTH = 750;
 var GAME_HEIGHT = 500;
 
 var ENEMY_WIDTH = 75;
 var ENEMY_HEIGHT = 156;
-var MAX_ENEMIES = 3;
+var MAX_ENEMIES = 6;
 
-var BOSS_WIDTH = 300;
+var BOSS_WIDTH = 375;
 var BOSS_HEIGHT = 400; //figure out after
 
 var PLAYER_WIDTH = 75;
@@ -59,7 +59,7 @@ class Enemy extends Entity {
 class Player extends Entity{
     constructor() {
         super();
-        this.x = 2 * PLAYER_WIDTH;
+        this.x = 4 * PLAYER_WIDTH;
         this.y = GAME_HEIGHT - PLAYER_HEIGHT - 10;
         this.sprite = images['ziad.png'];
     }
@@ -84,12 +84,12 @@ class Player extends Entity{
 class Boss extends Enemy {
   constructor() {
       super();
-      this.x = 0;
+      this.x = Math.random() * BOSS_WIDTH;
       this.y = -BOSS_HEIGHT;
       this.sprite = images['kevin.png'];
 
       // Each enemy should have a different speed
-      this.speed = 0.2;
+      this.speed = 0.1;
   }
 
   update(timeDiff) {
@@ -152,9 +152,6 @@ class Engine {
             enemySpot = Math.floor(Math.random() * enemySpots);
         }
 
-          if(isBossTime()) {
-             this.enemies = [];
-          }
           this.enemies[enemySpot] = new Enemy(Math.floor(enemySpot * ENEMY_WIDTH));
       }
 
@@ -262,9 +259,13 @@ class Engine {
     }
 
     isBossTime(timeDiff) {
-      if(this.score >= 200) {
+      if(this.score > 500) {
           console.log("THE BOSS HAS ARRIVED", timeDiff)
           this.boss.update(timeDiff);
+          if (this.boss.y > GAME_HEIGHT) {
+              delete this.boss;
+              this.boss = new Boss();
+          }
           return true;
         }
         return false
@@ -275,11 +276,13 @@ class Engine {
         var hitZone = (PLAYER_HEIGHT - this.player.y);
         console.log(hitZone);
         this.enemies.forEach((enemy, i) => {
-            if (this.enemies[i]
+            if (this.enemies[i] && this.boss
                 && this.enemies[i].x < this.player.x + PLAYER_WIDTH - 0.2 * PLAYER_WIDTH
                 && this.enemies[i].x + ENEMY_WIDTH > this.player.x + 0.2 * PLAYER_WIDTH
                 && this.enemies[i].y + ENEMY_HEIGHT* 0.6 > this.player.y
-                && this.enemies[i].y + ENEMY_HEIGHT* 0.5 < this.player.y + PLAYER_HEIGHT) {
+                && this.enemies[i].y + ENEMY_HEIGHT* 0.5 < this.player.y + PLAYER_HEIGHT)
+
+            {
 
                 dead = true;
                 console.log(hitZone);
