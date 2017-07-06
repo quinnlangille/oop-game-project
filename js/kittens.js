@@ -84,8 +84,8 @@ class Player extends Entity{
 class Boss extends Enemy {
   constructor(xPos) {
       super();
-      this.x = BOSS_WIDTH * 4;
-      this.y = -BOSS_HEIGHT;
+      this.x = 100;
+      this.y = 0;
       this.sprite = images['kevin.png'];
 
       // Each enemy should have a different speed
@@ -107,14 +107,13 @@ class Engine {
     constructor(element) {
         // Setup the player
         this.player = new Player();
-
         this.boss = new Boss();
         // Setup enemies, making sure there are always three
 
         this.setupEnemies();
 
         // Setup Boss once checkpoint is reached
-        this.deployBoss();
+        // this.deployBoss();
 
         // Setup the <canvas> element where we will be drawing
         var canvas = document.createElement('canvas');
@@ -187,17 +186,17 @@ class Engine {
         this.gameLoop();
     }
 
-    deployBoss() {
-        console.log("Inside the Boss fucnction" + this.score);
-        this.boss = new Boss;
-        if(this.score === 2000) {
-            console.log("Inside the condition" + this.score);
-            this.boss = new Boss();
-            while(Boss) {
-                console.log("Inside the while" + this.score);
-            }
-        }
-    }
+    // deployBoss() {
+    //     console.log("Inside the Boss fucnction" + this.score);
+    //     this.boss = new Boss;
+    //     if(this.score === 2000) {
+    //         console.log("Inside the condition" + this.score);
+    //         this.boss = new Boss();
+    //         while(Boss) {
+    //             console.log("Inside the while" + this.score);
+    //         }
+    //     }
+    // }
 
     /*
     This is the core of the game engine. The `gameLoop` function gets called ~60 times per second
@@ -253,18 +252,18 @@ class Engine {
             requestAnimationFrame(this.gameLoop);
         }
 
-        isBossTime();
-
-        if(isBossTime()) {
+        if(this.isBossTime(timeDiff)) {
           console.log("IT IS BOSS TIME");
         }
     }
 
-    isBossTime() {
+    isBossTime(timeDiff) {
       if(this.score === 300) {
-          console.log("THE BOSS HAS ARRIVED")
+          console.log("THE BOSS HAS ARRIVED", timeDiff)
           this.boss.update(timeDiff);
+          return true;
         }
+        return false
       }
 
     isPlayerDead() {
